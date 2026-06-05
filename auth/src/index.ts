@@ -5,6 +5,8 @@ import { signInRouter } from './routes/signin';
 import { signUpRouter } from './routes/signup';
 import { signOutRouter } from './routes/signout';
 import { errorHandler } from './middlewares/error-handler';
+import {NotFoundError} from './errors/not-found-error';
+import 'express-async-errors';
 const app = express();
 app.use(bodyParser.json());
 app.use(currentUserRouter);
@@ -12,6 +14,9 @@ app.use(signInRouter);
 app.use(signUpRouter);
 app.use(signOutRouter);
 app.use(errorHandler);
+app.all('*', async(req, res, next) =>{
+    throw new NotFoundError();
+})
 app.get('/', (req, res) => {
   res.send('Hi there!');
 });
