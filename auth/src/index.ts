@@ -8,7 +8,14 @@ import { errorHandler } from './middlewares/error-handler';
 import {NotFoundError} from './errors/not-found-error';
 import 'express-async-errors';
 import mongoose from 'mongoose';
+import cookieSession from 'cookie-session';
+
 const app = express();
+app.set('trust proxy', true);
+app.use(cookieSession({
+  signed: false,
+  secure: true
+}));
 app.use(bodyParser.json());
 app.use(currentUserRouter);
 app.use(signInRouter);
@@ -26,6 +33,9 @@ app.get('/api/users/currentuser', (req, res) => {
 });
 
 const start = async () => {
+  if(!process.env.JWT_KEY) {
+    throw new Error('JWT_KEY must be defined');
+  }
   try {
     await mongoose.connect('mongodb://auth-mongo-srv:27017/auth');
     console.log('Connected to MongoDB');
