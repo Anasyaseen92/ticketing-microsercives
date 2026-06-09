@@ -1,25 +1,44 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose, { Mongoose } from 'mongoose';
+import mongoose from 'mongoose';
+import request from 'supertest';
 import { app } from '../app';
 
-let mongo: MongoMemoryServer; // ✅ Properly typed instead of `any`
+declare global {
+  function signin(): Promise<string[]>; // ← fix: declare as function, not namespace
+}
+
+let mongo: MongoMemoryServer;
 
 beforeAll(async () => {
-    mongo = await MongoMemoryServer.create();
-    const mongoUri = mongo.getUri(); // ✅ getUri is not async, no need for await
+  process.env.JWT_KEY = 'test-secret-key';
 
-    await mongoose.connect(mongoUri); // ✅ Pass the uri variable, not the method reference
-  
+  mongo = await MongoMemoryServer.create();
+  const mongoUri = mongo.getUri();
+
+  await mongoose.connect(mongoUri);
 });
 
 beforeEach(async () => {
-    const collections = await mongoose.connection.db!.collections(); // ✅ Non-null assertion
-    for (let collection of collections) {
-        await collection.deleteMany({});
-    }
+  const collections = await mongoose.connection.db!.collections();
+  for (let collection of collections) {
+    await collection.deleteMany({});
+  }
 });
 
 afterAll(async () => {
-    await mongo.stop();
-    await mongoose.connection.close();
+  await mongo.stop();
+  await mongoose.connection.close();
 });
+
+global.signin = async () => {
+  const email = 'test@test.com';
+  const password = 'password';
+
+  const response = await request(app)
+    .post('/api/users/signup')
+    .send({ email, password })
+    .expect(201);
+
+  const cookie = response.get('Set-Cookie')!;
+  return cookie;
+};

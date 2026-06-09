@@ -7,24 +7,24 @@ import { signOutRouter } from './routes/signout';
 import { errorHandler } from './middlewares/error-handler';
 import {NotFoundError} from './errors/not-found-error';
 import 'express-async-errors';
-import mongoose from 'mongoose';
 import cookieSession from 'cookie-session';
 
 const app = express();
 app.set('trust proxy', true);
 app.use(cookieSession({
   signed: false,
-  secure: true
+  secure: process.env.NODE_ENV !== 'test'
 }));
 app.use(bodyParser.json());
 app.use(currentUserRouter);
 app.use(signInRouter);
 app.use(signUpRouter);
 app.use(signOutRouter);
-app.use(errorHandler);
 app.all('*', async(req, res, next) =>{
     throw new NotFoundError();
 })
+app.use(errorHandler);
+
 app.get('/', (req, res) => {
   res.send('Hi there!');
 });
