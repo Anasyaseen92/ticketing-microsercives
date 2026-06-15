@@ -7,6 +7,7 @@ interface UseRequestProps {
   url: string;
   method: HttpMethod;
   body?: Record<string, unknown>;
+    onSuccess?: (data: any) => void; 
 }
 
 export default function useRequest({ url, method, body }: UseRequestProps) {
