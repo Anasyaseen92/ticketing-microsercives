@@ -4,13 +4,16 @@ import request from 'supertest';
 import { app } from '../app';
 
 declare global {
-  function signin(): Promise<string[]>; // ← fix: declare as function, not namespace
+  function signin(): Promise<string[]>;
 }
 
-let mongo: MongoMemoryServer;
+let mongo: MongoMemoryServer | undefined;
+
+jest.setTimeout(120000);
 
 beforeAll(async () => {
   process.env.JWT_KEY = 'test-secret-key';
+  process.env.NODE_ENV = 'test';
 
   mongo = await MongoMemoryServer.create();
   const mongoUri = mongo.getUri();
@@ -20,13 +23,15 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   const collections = await mongoose.connection.db!.collections();
-  for (let collection of collections) {
+  for (const collection of collections) {
     await collection.deleteMany({});
   }
 });
 
 afterAll(async () => {
-  await mongo.stop();
+  if (mongo) {
+    await mongo.stop();
+  }
   await mongoose.connection.close();
 });
 

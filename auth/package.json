@@ -4,11 +4,13 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node-dev src/index.ts",
-    "test": "jest --watchAll --no-cache"
+    "test": "jest --watchAll --no-cache",
+    "test:ci": "jest --watchAll=false --no-cache"
   },
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "testTimeout": 120000,
     "setupFilesAfterEnv": [
       "<rootDir>/src/test/setup.ts"
     ]

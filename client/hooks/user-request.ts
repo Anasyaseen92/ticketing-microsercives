@@ -7,34 +7,46 @@ interface UseRequestProps {
   url: string;
   method: HttpMethod;
   body?: Record<string, unknown>;
-    onSuccess?: (data: any) => void; 
+  onSuccess?: (data: unknown) => void;
 }
 
-export default function useRequest({ url, method, body }: UseRequestProps) {
+export default function useRequest({
+  url,
+  method,
+  body,
+  onSuccess,
+}: UseRequestProps) {
   const [errors, setErrors] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const doRequest = async () => {
-    setErrors([]); // clear previous errors before each request
+  const doRequest = async (requestBody?: Record<string, unknown>) => {
+    setErrors([]);
+    setIsLoading(true);
+
+    const payload = requestBody ?? body;
+    const config: AxiosRequestConfig = { withCredentials: true };
+
     try {
-      const config: AxiosRequestConfig = {};
-      let response;
+      const response =
+        method === "get" || method === "delete"
+          ? await axios[method](url, config)
+          : await axios[method](url, payload, config);
 
-      if (method === "get" || method === "delete") {
-        response = await axios[method](url, config);
-      } else {
-        response = await axios[method](url, body, config);
-      }
-
+      onSuccess?.(response.data);
       return response.data;
     } catch (err) {
-      // Extract error messages from Axios error response
       if (axios.isAxiosError(err) && err.response?.data?.errors) {
-        setErrors(err.response.data.errors.map((e: { message: string }) => e.message));
+        setErrors(
+          err.response.data.errors.map((e: { message: string }) => e.message)
+        );
       } else {
         setErrors(["Something went wrong. Please try again."]);
       }
+      return null;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return { doRequest, errors };
+  return { doRequest, errors, isLoading };
 }
