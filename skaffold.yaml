@@ -4,6 +4,7 @@ kind: Config
 build:
   local:
     push: false
+
   artifacts:
     - image: auth
       context: auth
@@ -13,14 +14,24 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
+
     - image: client
       context: client
       docker:
         dockerfile: Dockerfile
       sync:
-       manual:
-        - src: "**/*.js"
-          dest: .
+        manual:
+          - src: "**/*.js"
+            dest: .
+
+    - image: tickets
+      context: tickets
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .
 
 deploy:
   kubectl:

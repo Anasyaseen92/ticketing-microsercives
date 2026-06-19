@@ -1,12 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { currentUserRouter } from './routes/current-user';
-import { signInRouter } from './routes/signin';
-import { signUpRouter } from './routes/signup';
-import { signOutRouter } from './routes/signout';
+import json from 'body-parser';
 import { errorHandler } from '@aytix/common';
 import {NotFoundError} from '@aytix/common';
-import 'express-async-errors';
 import cookieSession from 'cookie-session';
 
 const app = express();
@@ -16,10 +12,7 @@ app.use(cookieSession({
   secure: process.env.COOKIE_SECURE === 'true',
 }));
 app.use(bodyParser.json());
-app.use(currentUserRouter);
-app.use(signInRouter);
-app.use(signUpRouter);
-app.use(signOutRouter);
+
 app.all('*', async(req, res, next) =>{
     throw new NotFoundError();
 })
