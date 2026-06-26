@@ -1,10 +1,10 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import json from 'body-parser';
-import { errorHandler } from '@aytix/common';
+import { currentUser, errorHandler } from '@aytix/common';
 import {NotFoundError} from '@aytix/common';
 import cookieSession from 'cookie-session';
-
+import { newTicketRouter } from './routes/new';
 const app = express();
 app.set('trust proxy', true);
 app.use(cookieSession({
@@ -12,7 +12,8 @@ app.use(cookieSession({
   secure: process.env.COOKIE_SECURE === 'true',
 }));
 app.use(bodyParser.json());
-
+app.use(currentUser);
+app.use(newTicketRouter);
 app.all('*', async(req, res, next) =>{
     throw new NotFoundError();
 })
