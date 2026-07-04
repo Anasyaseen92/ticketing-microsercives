@@ -1,30 +1,28 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import json from 'body-parser';
-import { currentUser, errorHandler } from '@aytix/common';
-import {NotFoundError} from '@aytix/common';
 import cookieSession from 'cookie-session';
+import { currentUser, errorHandler, NotFoundError } from '@aytix/common';
 import { newTicketRouter } from './routes/new';
+import { showTicketRouter } from './routes/show';
+
 const app = express();
 app.set('trust proxy', true);
-app.use(cookieSession({
-  signed: false,
-  secure: process.env.COOKIE_SECURE === 'true',
-}));
 app.use(bodyParser.json());
+app.use(
+    cookieSession({
+        signed: false,
+        secure: process.env.COOKIE_SECURE === 'true'
+    })
+);
 app.use(currentUser);
+
 app.use(newTicketRouter);
-app.all('*', async(req, res, next) =>{
+app.use(showTicketRouter);
+
+app.all('*', async (req, res, next) => {
     throw new NotFoundError();
-})
+});
+
 app.use(errorHandler);
-
-app.get('/', (req, res) => {
-  res.send('Hi there!');
-});
-app.get('/api/users/currentuser', (req, res) => {
-  res.send('Hi there!');
-});
-
 
 export { app };
