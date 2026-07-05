@@ -20,9 +20,12 @@ spec:
                 port:
                   number: 80
           - path: /api/tickets/?(.*)
+            pathType: ImplementationSpecific
             backend:
-              serviceName: tickets-srv
-              servicePort: 3000
+              service:
+                name: tickets-srv
+                port:
+                  number: 3000
           - path: /?(.*)
             pathType: ImplementationSpecific
             backend:
