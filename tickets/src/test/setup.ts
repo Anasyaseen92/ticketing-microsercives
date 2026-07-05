@@ -1,18 +1,16 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
+import { MongoMemoryServer } from "mongodb-memory-server";
+import { app } from "../app";
 
 declare global {
-  function signin(): Promise<string[]>;
+  var signin: () => string[];
 }
 
-let mongo: MongoMemoryServer | undefined;
-
-jest.setTimeout(120000);
+let mongo: MongoMemoryServer;
 
 beforeAll(async () => {
-  process.env.JWT_KEY = 'test-secret-key';
-  process.env.NODE_ENV = 'test';
+  process.env.JWT_KEY = "asdfasdf";
 
   mongo = await MongoMemoryServer.create();
   const mongoUri = mongo.getUri();
@@ -22,7 +20,7 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   const collections = await mongoose.connection.db!.collections();
-  for (const collection of collections) {
+  for (let collection of collections) {
     await collection.deleteMany({});
   }
 });
@@ -34,16 +32,17 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
-global.signin = async () => {
+global.signin = () => {
   const payload = {
-    id: '1v768hnfc5678',
-    email: 'test@test.com'
+    id: new mongoose.Types.ObjectId().toHexString(),
+    email: "test@test.com",
   };
 
   const token = jwt.sign(payload, process.env.JWT_KEY!);
 
-  const sessionJSON = JSON.stringify({ jwt: token });
+  const session = { jwt: token };
+  const sessionJSON = JSON.stringify(session);
+  const base64 = Buffer.from(sessionJSON).toString("base64");
 
-  const base64 = Buffer.from(sessionJSON).toString('base64');
-  return [base64];
+  return [`session=${base64}`];
 };

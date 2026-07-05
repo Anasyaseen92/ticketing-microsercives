@@ -13,7 +13,8 @@ const app = express();
 app.set('trust proxy', true);
 app.use(cookieSession({
   signed: false,
-  secure: process.env.COOKIE_SECURE === 'true',
+  secure: false,
+  sameSite: 'lax',
 }));
 app.use(bodyParser.json());
 app.use(currentUserRouter);

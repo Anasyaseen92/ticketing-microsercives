@@ -3,10 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import useRequest from "../../../hooks/user-request";
-import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { doRequest, errors, isLoading } = useRequest({
@@ -19,8 +17,7 @@ export default function SignupPage() {
 
     const result = await doRequest({ email, password });
     if (result) {
-      router.push("/");
-      router.refresh();
+      window.location.href = "/";
     }
   };
 

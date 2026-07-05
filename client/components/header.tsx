@@ -9,7 +9,7 @@ export default function Header({ currentUser }: { currentUser: CurrentUser | nul
   const navLinks = [
     !currentUser && { label: "Sign Up", href: "/auth/signup" },
     !currentUser && { label: "Sign In", href: "/auth/signin" },
-    currentUser && { label: "Sign Out", href: "/auth/signout" },
+    currentUser && { label: "Logout", href: "/auth/signout" },
   ].filter((link): link is { label: string; href: string } => Boolean(link));
 
   const links = navLinks.map((link) => (
