@@ -1,7 +1,7 @@
 {
   "name": "@aytix/common",
-  "version": "1.0.4",
-  "type": "commonjs",
+  "version": "1.0.5",
+  "type": "module",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "files": [
@@ -22,6 +22,7 @@
     "cookie-session": "^2.1.1",
     "express": "^5.2.1",
     "express-validator": "^7.3.2",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "node-nats-streaming": "^0.3.2"
   }
 }
