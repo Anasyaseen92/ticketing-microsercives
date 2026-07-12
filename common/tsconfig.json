@@ -3,7 +3,7 @@
     "rootDir": "./src",
     "outDir": "./build",
 
-    "module": "nodenext",
+    "module": "commonjs",
     "target": "esnext",
 
     "declaration": true,
