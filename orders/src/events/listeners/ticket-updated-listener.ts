@@ -1,20 +1,19 @@
-import {Message} from 'node-nats-streaming';
-import { Listener, OrderCreatedEvent, Subject} from '@aytix/common';
+import { Message } from 'node-nats-streaming';
+import { Listener, Subject, TicketUpdatedEvent } from '@aytix/common';
 import { queueGroupName } from './queue-group-name';
-import {Ticket} from '../../models/ticket';
+import { Ticket } from '../../models/ticket';
 
-export class TicketUpdatedListener extends Listener<OrderCreatedEvent> {
-    subject: Subject.OrderCreated = Subject.OrderCreated
+export class TicketUpdatedListener extends Listener<TicketUpdatedEvent> {
+    subject: Subject.TicketUpdated = Subject.TicketUpdated;
     queueGroupName = queueGroupName;
 
-    async onMessage(data: OrderCreatedEvent['data'], msg: Message) {
-        const ticket = await Ticket.findById(data.ticket.id);
+    async onMessage(data: TicketUpdatedEvent['data'], msg: Message) {
+        const ticket = await Ticket.findByEvent(data);
         if (!ticket) {
             throw new Error('Ticket not found');
         }
 
-        const { id, title, price } = data.ticket;
-        ticket.set({ title, price });
+        ticket.set({ title: data.title, price: data.price });
 
         await ticket.save();
 

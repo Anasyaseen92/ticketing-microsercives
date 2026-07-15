@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { Ticket } from "../models/ticket";
-import { NotFoundError , validateRequest, NotAuthorizedError, requireAuth} from "@aytix/common";
+import { NotFoundError , validateRequest, NotAuthorizedError, requireAuth, BadRequestError} from "@aytix/common";
 import { body } from "express-validator/lib/middlewares/validation-chain-builders";
 import { TicketUpdatedPublisher } from "../events/publishers/ticket-update-publisher";
 import { natsWrapper } from "../nats-wrapper";
@@ -16,6 +16,10 @@ router.put("/api/tickets/:id", requireAuth,[
     if (!ticket) {
         throw new NotFoundError();
     }
+
+    if(ticket.orderId) {
+        throw new BadRequestError('Cannot edit a reserved ticket');
+    }
     if(ticket.userId !== req.currentUser!.id) {
         throw new NotAuthorizedError();
     }
@@ -28,7 +32,8 @@ router.put("/api/tickets/:id", requireAuth,[
         id: ticket.id,
         title: ticket.title,
         price: ticket.price,
-        userId: ticket.userId
+        userId: ticket.userId,
+        version: ticket.version
     });
     res.send(ticket)
 })
